@@ -1,14 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 
 from uuid import uuid4
 
 # Model Schema
 
 class UserDetails(models.Model):
-    id = models.UUIDField(uuid4, primary_key=True)
-    phone_number = models.FloatField(default=0)
+    id = models.UUIDField(default=uuid4, primary_key=True, editable=False)
+    phone_number = models.CharField(default="+1-0000000000", max_length=20)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="user_details")
     balance = models.FloatField(default=0)
     bonus = models.FloatField(default=0)
@@ -21,5 +22,6 @@ class UserDetails(models.Model):
 def create_user_detail(sender, instance, created, **kwargs):
     if created:
         UserDetails.objects.create(user=instance)
+        print("created user detail")
 
-post_delete.connect(create_user_detail, sender=User)
+post_save.connect(create_user_detail, sender=User)
