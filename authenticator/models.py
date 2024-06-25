@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 from rest_framework.authtoken.models import Token
 from uuid import uuid4
@@ -24,7 +23,7 @@ class UserDetails(models.Model):
     def __str__(self):
         return f"{self.user.email}'s Details"
     
-# Model signals
+# Model Signals
 def create_user_detail(sender, instance, created, **kwargs):
     if created:
         UserDetails.objects.create(user=instance)

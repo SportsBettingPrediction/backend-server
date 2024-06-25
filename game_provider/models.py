@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from uuid import uuid4
 
-# Create your models here.
+# Model Schema
 class AdminAccountDetails(models.Model):
     account_name = models.CharField(max_length=50)
     bank_name = models.CharField(max_length=50)
@@ -59,3 +60,29 @@ class Bet(models.Model):
     
     def __str__(self):
         return f"BET: user ({self.user.email if self.user else ''})\tamount ({self.amount})"
+
+# Model Signals
+def update_balance(sender, instance, created, **kwargs):
+    if instance.trans_type.lower() == "withdrawal":
+        if instance.status.lower() != "pending" and not instance.withdrawal_request.is_settled:
+            if instance.status.lower() == "successful" and not instance.withdrawal_request.is_settled:
+                user_details = instance.user.user_details
+                balance = user_details.balance
+                user_details.balance = balance - instance.amount
+                user_details.save()
+                
+            instance.withdrawal_request.is_settled = True
+            instance.withdrawal_request.save()
+            
+    elif instance.trans_type.lower() == "deposit":
+        if instance.status.lower() != "pending" and not instance.deposit_request.is_settled:
+            if instance.status.lower() == "successful" and not instance.deposit_request.is_settled:
+                user_details = instance.user.user_details
+                balance = user_details.balance
+                user_details.balance = balance + instance.amount
+                user_details.save()
+                
+            instance.deposit_request.is_settled = True
+            instance.deposit_request.save()
+
+post_save.connect(update_balance, Transaction)

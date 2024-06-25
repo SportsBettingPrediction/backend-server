@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'corsheaders',
+    'jet_django',
     'rest_framework',
     'rest_framework.authtoken',
     'authenticator',
@@ -124,6 +125,9 @@ CORS_ORIGIN_ALLOW_ALL = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+JET_PROJECT = 'casino_5'
+JET_TOKEN = '6cd74b0e-6aaf-4187-867f-4dad62cf7ecf'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

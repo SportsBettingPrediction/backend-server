@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('jet_api/', include('jet_django.urls')),
     path("auth/", include("authenticator.urls")),
     path("", include("game_provider.urls")),
 ]

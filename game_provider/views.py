@@ -5,7 +5,14 @@ from rest_framework.permissions import IsAuthenticated
 
 from datetime import datetime
 
-from .serializers import Transaction, TransactionSerializer, Bet, BetSerializer
+from .serializers import (
+                            Transaction, 
+                            TransactionSerializer, 
+                            Bet, 
+                            BetSerializer, 
+                            WithdrawalRequest,
+                            DepositRequest
+                        )
 
 # Create your views here.
 class TransactionApiView(APIView):
@@ -67,14 +74,48 @@ class BetHistoryApiView(APIView):
     
     
 class WithdrawalApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        # amount = request.data.("amount", None)
-        # account_number = request.data("account_number")
-        return Response(status=200)
+        amount = request.data.get("amount", None)
+        account_number = request.data.get("account_number")
+        account_name = request.data.get("account_name")
+        bank_name = request.data.get("bank_name")
+        
+        if amount == None or amount == "":
+            return Response(status=400, data={"error_message": "required field not provided"})
+        
+        if account_number == None or account_number == "":
+            return Response(status=400, data={"error_message": "required field not provided"})
+        
+        if account_name == None or account_name == "":
+            return Response(status=400, data={"error_message": "required field not provided"})
+        
+        if bank_name == None or bank_name == "":
+            return Response(status=400, data={"error_message": "required field not provided"})
+        
+        if float(amount) > request.user.user_details.balance:
+            return Response(status=400, data={"error_message": "insufficient balance"})
+        
+        transaction = Transaction.objects.create(user=request.user, amount=amount, status="pending", trans_type="withdrawal")
+        WithdrawalRequest.objects.create(account_name=account_name, account_number=account_number, bank_name=bank_name, transaction=transaction)
+        
+        return Response(status=200, data={"transaction": TransactionSerializer(transaction).data})
 
 class DepositApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
     
     def post(self, request):
-        return Response(status=200)
+        amount = request.data.get("amount", None)
+        
+        if amount == None or amount == "":
+            return Response(status=400, data={"error_message": "required field not provided"})
+        
+        transaction = Transaction.objects.create(user=request.user, amount=amount, status="pending", trans_type="deposit")
+        DepositRequest.objects.create(transaction=transaction)
+        
+        return Response(status=200, data={"transaction": TransactionSerializer(transaction).data})
+
     
