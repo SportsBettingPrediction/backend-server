@@ -8,13 +8,13 @@ class AdminAccountDetailsSerializer(ModelSerializer):
         fields = ["account_name", "bank_name", "account_number", "last_updated_at"]
         
 
-class TransactionSerializer:
+class TransactionSerializer(ModelSerializer):
     
     class Meta:
         model = Transaction
         fields = ["id", "amount", "trans_type", "status", "created_at"]
 
-class BetSerializer:
+class BetSerializer(ModelSerializer):
     
     class Meta:
         model = Bet

@@ -51,7 +51,7 @@ class DepositRequest(models.Model):
 
 class Bet(models.Model):
     id = models.UUIDField(default=uuid4, primary_key=True, editable=False)
-    user = models.OneToOneField(User, on_delete=models.SET_NULL, related_name="user", null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name="user", null=True)
     game = models.CharField(max_length=20)
     amount = models.FloatField()
     status = models.CharField(max_length=20, choices=[("pending", "PENDING"), ("win", "WIN"), ("lose", "LOSE")])
@@ -62,7 +62,7 @@ class Bet(models.Model):
         return f"BET: user ({self.user.email if self.user else ''})\tamount ({self.amount})"
 
 # Model Signals
-def update_balance(sender, instance, created, **kwargs):
+def update_transaction_balance(sender, instance, created, **kwargs):
     if instance.trans_type.lower() == "withdrawal":
         if instance.status.lower() != "pending" and not instance.withdrawal_request.is_settled:
             if instance.status.lower() == "successful" and not instance.withdrawal_request.is_settled:
@@ -85,4 +85,23 @@ def update_balance(sender, instance, created, **kwargs):
             instance.deposit_request.is_settled = True
             instance.deposit_request.save()
 
-post_save.connect(update_balance, Transaction)
+post_save.connect(update_transaction_balance, Transaction)
+
+def update_bet_balance(sender, instance, created, **kwargs):
+    if instance.status.lower() != "pending" and not instance.is_settled:
+        if instance.status.lower() == "win" and not instance.is_settled:
+            user_details = instance.user.user_details
+            balance = user_details.balance
+            user_details.balance = balance + instance.amount
+            user_details.save()
+            
+        elif instance.status.lower() == "lose" and not instance.is_settled:
+            user_details = instance.user.user_details
+            balance = user_details.balance
+            user_details.balance = balance - instance.amount
+            user_details.save()
+            
+        instance.is_settled = True
+        instance.save()
+        
+post_save.connect(update_bet_balance, Bet)

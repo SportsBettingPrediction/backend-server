@@ -16,10 +16,7 @@ class LoginApiView(APIView):
         email = request.data.get("email", None)
         phone_number = request.data.get("phone_number", None)
         password = request.data.get("password", None)
-        is_email = bool(int(request.data.get("is_email", "1")))
-        
-        if (email == None or email == "") and is_email :
-            return Response(status=400, data={"error_message": "required field not provided"})
+        is_email = request.data.get("is_email", True)
         
         if (phone_number == "" or phone_number == None) and not is_email:
             return Response(status=400, data={"error_message": "required field not provided"})

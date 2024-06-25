@@ -26,7 +26,9 @@ class UserDetails(models.Model):
 # Model Signals
 def create_user_detail(sender, instance, created, **kwargs):
     if created:
-        UserDetails.objects.create(user=instance)
+        profile_img = ProfileImage.objects.get_or_create(url="default.jpg")
+        UserDetails.objects.create(user=instance, profile_img=profile_img)
         Token.objects.create(user=instance)
+        
 
 post_save.connect(create_user_detail, sender=User)
