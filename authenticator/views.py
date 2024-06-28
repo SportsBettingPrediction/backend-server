@@ -164,8 +164,8 @@ class UpdatePasswordApiView(APIView):
         password_confirm = request.data.get("password_confirm", None)
         
         if (password_old == None or password_old == "") \
-            (password_new == None or password_new == "") \
-            (password_confirm == None or password_confirm == ""):
+            or (password_new == None or password_new == "") \
+            or (password_confirm == None or password_confirm == ""):
             return Response(status=400, data={"error_message": "required field not provided"})
         
         try:
