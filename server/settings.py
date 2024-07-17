@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'authenticator',
     'game_provider',
+    'user_interface',
 ]
 
 MIDDLEWARE = [
@@ -126,7 +127,10 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static")]
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+    os.path.join(BASE_DIR, "user_interface/template/dist"),
+]
 
 JET_PROJECT = 'casino_5'
 JET_TOKEN = '6cd74b0e-6aaf-4187-867f-4dad62cf7ecf'

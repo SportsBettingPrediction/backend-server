@@ -8,4 +8,5 @@ urlpatterns = [
     path('jet_api/', include('jet_django.urls')),
     path("auth/", include("authenticator.urls")),
     path("", include("game_provider.urls")),
+    path("", include("user_interface.urls")),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
